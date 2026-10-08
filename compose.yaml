@@ -1,0 +1,20 @@
+services:
+  website:
+    image: ${IMAGE}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=hosting-web"
+      - "traefik.http.routers.${ENVIRONMENT}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${ENVIRONMENT}.entrypoints=websecure"
+      - "traefik.http.routers.${ENVIRONMENT}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${ENVIRONMENT}.loadbalancer.server.port=80"
+
+networks:
+  web:
+    external: true
+    name: hosting-web

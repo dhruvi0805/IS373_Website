@@ -1,0 +1,80 @@
+name: CI/CD Deployment
+
+on:
+  push:
+    branches: [main, qa]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate website
+        run: |
+          test -s index.html
+          grep -qi '<html' index.html
+          grep -qi '</html>' index.html
+
+      - name: Build Docker image
+        run: |
+          docker build -t website-test .
+          docker image inspect website-test
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push deployment image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/is373-website:${{ github.ref_name }}
+
+      - name: Deploy to DigitalOcean
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          BRANCH: ${{ github.ref_name }}
+          OWNER: ${{ github.repository_owner }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+          if [ "$BRANCH" = "main" ]; then
+            ENVIRONMENT=production
+            DOMAIN=dhruvi.live
+          else
+            ENVIRONMENT=qa
+            DOMAIN=qa.dhruvi.live
+          fi
+
+          IMAGE="ghcr.io/${OWNER,,}/is373-website:$BRANCH"
+
+          ssh "$SSH_USER@$SSH_HOST" "mkdir -p ~/deployments/$ENVIRONMENT"
+
+          scp compose.yaml "$SSH_USER@$SSH_HOST:deployments/$ENVIRONMENT/compose.yaml"
+
+          printf '%s' "$GH_TOKEN" | ssh "$SSH_USER@$SSH_HOST" \
+            "sudo docker login ghcr.io -u '$OWNER' --password-stdin"
+
+          ssh "$SSH_USER@$SSH_HOST" \
+            "cd ~/deployments/$ENVIRONMENT && \
+            IMAGE='$IMAGE' ENVIRONMENT='$ENVIRONMENT' DOMAIN='$DOMAIN' \
+            sudo --preserve-env=IMAGE,ENVIRONMENT,DOMAIN docker compose \
+            -p is373-$ENVIRONMENT up -d --pull always --force-recreate"
