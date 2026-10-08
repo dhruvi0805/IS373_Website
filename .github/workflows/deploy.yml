@@ -68,6 +68,11 @@ jobs:
 
           ssh "$SSH_USER@$SSH_HOST" "mkdir -p ~/deployments/$ENVIRONMENT"
 
+          printf 'IMAGE=%s\nENVIRONMENT=%s\nDOMAIN=%s\n' \
+            "$IMAGE" "$ENVIRONMENT" "$DOMAIN" | \
+            ssh "$SSH_USER@$SSH_HOST" \
+            "umask 077; cat > ~/deployments/$ENVIRONMENT/.env"
+
           scp compose.yaml "$SSH_USER@$SSH_HOST:deployments/$ENVIRONMENT/compose.yaml"
 
           printf '%s' "$GH_TOKEN" | ssh "$SSH_USER@$SSH_HOST" \
@@ -75,6 +80,7 @@ jobs:
 
           ssh "$SSH_USER@$SSH_HOST" \
             "cd ~/deployments/$ENVIRONMENT && \
-            IMAGE='$IMAGE' ENVIRONMENT='$ENVIRONMENT' DOMAIN='$DOMAIN' \
-            sudo --preserve-env=IMAGE,ENVIRONMENT,DOMAIN docker compose \
-            -p is373-$ENVIRONMENT up -d --pull always --force-recreate"
+            sudo docker compose \
+            -p is373-$ENVIRONMENT \
+            -f compose.yaml \
+            up -d --pull always --force-recreate"
