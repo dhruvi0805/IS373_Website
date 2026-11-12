@@ -21,3 +21,11 @@ Traefik, HTTPS, and GitHub Actions.
 - Root SSH login disabled
 - Password SSH authentication disabled
 - Deployment credentials stored in GitHub Actions Secrets
+
+## Screenshots
+
+- Successful SSH public-key authentication
+![Non-root account and effective SSh settings](image-2.png)
+
+- Non-root account and effective SSH settings
+![Successful SSH public key authentication](image-3.png)
