@@ -31,4 +31,6 @@ Traefik, HTTPS, and GitHub Actions.
 ![Successful SSH public key authentication](image-3.png)
 
 ## Test Evidence
-- [Successful QA deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/43287351012)
+- [Successful QA deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/37822314435) — `qa` branch, commit `9339d8b`.
+- [Successful production deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/37822577104) — `main` branch, commit `9339d8b`.
+- [Container registry — is373-website](https://github.com/users/dhruvi0805/packages/container/package/is373-website) — Production image: `ghcr.io/dhruvi0805/is373-website:main`.
