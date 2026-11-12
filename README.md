@@ -30,7 +30,16 @@ Traefik, HTTPS, and GitHub Actions.
 - Non-root account and effective SSH settings
 ![Successful SSH public key authentication](image-3.png)
 
+- QA test site screenshot with change
+![QA site screenshot](image-4.png)
+
+- Production site screenshot before merge
+![Production site screenshot before merge](image-5.png)
+
+- Production site screenshot after merge 
+![Production site screenshot after merge](image-6.png)
+
 ## Test Evidence
-- [Successful QA deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/37822314435) — `qa` branch, commit `9339d8b`.
-- [Successful production deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/37822577104) — `main` branch, commit `9339d8b`.
+- [Successful QA deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/43290041000) — `qa` branch, commit `9aa1d35`.
+- [Successful production deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/43294044465) — `main` branch, commit `9aa1d35`.
 - [Container registry — is373-website](https://github.com/users/dhruvi0805/packages/container/package/is373-website) — Production image: `ghcr.io/dhruvi0805/is373-website:main`.
