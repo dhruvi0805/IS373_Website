@@ -43,3 +43,7 @@ Traefik, HTTPS, and GitHub Actions.
 - [Successful QA deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/43290041000) — `qa` branch, commit `9aa1d35`.
 - [Successful production deployment](https://github.com/dhruvi0805/IS373_Website/actions/runs/43294044465) — `main` branch, commit `9aa1d35`.
 - [Container registry — is373-website](https://github.com/users/dhruvi0805/packages/container/package/is373-website) — Production image: `ghcr.io/dhruvi0805/is373-website:main`.
+
+### How deployment works
+
+A push to `qa` triggers the QA deployment. Merging the tested change into `main` triggers the production deployment. GitHub Actions validates the website before building the Docker image from the repository’s Dockerfile, which copies `index.html` into an Nginx image. If validation or the build fails, deployment stops. On success, the workflow pushes the branch-tagged image to GitHub Container Registry and connects to the DigitalOcean Droplet over SSH to pull the image and update the corresponding Docker Compose service. QA and production run separately and are served at their own HTTPS hostnames.
